@@ -1,6 +1,9 @@
 package com.template;
 
+import com.template.flows.MessageFlow;
 import net.corda.client.rpc.CordaRPCClient;
+import net.corda.core.identity.CordaX500Name;
+import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.node.NodeInfo;
 import net.corda.core.utilities.NetworkHostAndPort;
@@ -8,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 import static net.corda.core.utilities.NetworkHostAndPort.parse;
 
@@ -32,5 +36,12 @@ public class Client {
         // For example, here we print the nodes on the network.
         final List<NodeInfo> nodes = proxy.networkMapSnapshot();
         logger.info("{}", nodes);
+
+        CordaX500Name x500Name = CordaX500Name.parse("O=PartyB,L=New York,C=US");
+        final Party otherParty = proxy.wellKnownPartyFromX500Name(x500Name);
+
+
+        final String result = proxy.startFlowDynamic(MessageFlow.class, "Respondeme por favor!!",otherParty).getReturnValue().toString();
+        logger.info("{}", result);
     }
 }
