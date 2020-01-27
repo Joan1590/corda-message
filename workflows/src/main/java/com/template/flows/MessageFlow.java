@@ -19,7 +19,7 @@ import java.util.List;
 // Replace Initiator's definition with:
 @InitiatingFlow
 @StartableByRPC
-public class MessageFlow extends FlowLogic<Void> {
+public class MessageFlow extends FlowLogic<SignedTransaction> {
     private final String message;
     private final Party otherParty;
 
@@ -43,7 +43,7 @@ public class MessageFlow extends FlowLogic<Void> {
      */
     @Suspendable
     @Override
-    public Void call() throws FlowException {
+    public SignedTransaction call() throws FlowException {
         // We retrieve the notary identity from the network map.
         Party notary = getServiceHub().getNetworkMapCache().getNotaryIdentities().get(0);
 
@@ -71,8 +71,6 @@ public class MessageFlow extends FlowLogic<Void> {
                 signedTx, Arrays.asList(otherPartySession), CollectSignaturesFlow.tracker()));
 
         // Finalising the transaction.
-        subFlow(new FinalityFlow(fullySignedTx, otherPartySession));
-
-        return null;
+        return subFlow(new FinalityFlow(fullySignedTx, otherPartySession));
     }
 }

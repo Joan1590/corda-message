@@ -6,12 +6,14 @@ import net.corda.core.identity.CordaX500Name;
 import net.corda.core.identity.Party;
 import net.corda.core.messaging.CordaRPCOps;
 import net.corda.core.node.NodeInfo;
+import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.utilities.NetworkHostAndPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import static net.corda.core.utilities.NetworkHostAndPort.parse;
 
@@ -23,7 +25,7 @@ import static net.corda.core.utilities.NetworkHostAndPort.parse;
 public class Client {
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
         // Create an RPC connection to the node.
         if (args.length != 3) throw new IllegalArgumentException("Usage: Client <node address> <rpc username> <rpc password>");
         final NetworkHostAndPort nodeAddress = parse(args[0]);
@@ -41,7 +43,7 @@ public class Client {
         final Party otherParty = proxy.wellKnownPartyFromX500Name(x500Name);
 
 
-        final String result = proxy.startFlowDynamic(MessageFlow.class, "Respondeme por favor!!",otherParty).getReturnValue().toString();
-        logger.info("{}", result);
+        final SignedTransaction result = proxy.startFlowDynamic(MessageFlow.class, "Esto es una prueba con respuesta!!",otherParty).getReturnValue().get();
+        logger.info("{}", result.getId().toString());
     }
 }
